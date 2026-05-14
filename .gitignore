@@ -1,0 +1,8 @@
+Syncra.Api/obj
+Syncra.Api/bin
+Syncra.Application/bin
+Syncra.Application/obj
+Syncra.Domain/bin
+Syncra.Domain/obj
+Syncra.Infrastructure/bin
+Syncra.Infrastructure/obj
