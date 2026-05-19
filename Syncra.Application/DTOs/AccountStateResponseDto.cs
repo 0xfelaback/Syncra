@@ -1,0 +1,1 @@
+public record AccountStateResponseDto(string accountId, decimal balance, decimal provisionalBalance, int version, string lastEventId, string lastServerSequence, DateTime updated_at, bool hasPendingEvents, int pendingEventsCount);
