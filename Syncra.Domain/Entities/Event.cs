@@ -1,12 +1,14 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Syncra.Domain.Entities;
 
 public class Event
 {
     // Primary - Store all recent transaction events (last 90 days)
-    public string event_id { get; set; } = null!;
+    public string event_id { get; set; } = null!; // from node
     [ForeignKey("parent_event")]
     public string? parent_event_id { get; set; } = null; // previous one before
     public Event? parent_event { get; set; } = null;
+    public string? aggregateId { get; set; } = null; // TODO: Account initiating event
     [ForeignKey("compensates_event")]
     public string? compensates_event_id { get; set; } = null; // if compensated event, what event did this reverse
     public Event? compensates_event { get; set; } = null;
@@ -21,10 +23,11 @@ public class Event
     [ForeignKey("node")]
     public string node_id { get; set; } = null!; //node that created event
     public NodeState node { get; set; } = null!;
+    public IdempotencyKey idempotency_record { get; set; } = null!;
     public int node_sequence { get; set; }
     public long server_sequence { get; set; }
     public DateTime node_timestamp { get; set; }
-    public DateTime server_timestamp { get; set; }
+    public DateTime? server_timestamp { get; set; } = DateTime.Now;
     public EventType Type { get; set; }
     public EventPayloadData payload { get; set; } = null!;
     public EventStatus Status { get; set; }

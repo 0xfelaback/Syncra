@@ -12,7 +12,7 @@ using Syncra.Infrastructure;
 namespace Syncra.Infrastructure.Migrations
 {
     [DbContext(typeof(SyncraDbContext))]
-    [Migration("20260518230455_InitialMigrations")]
+    [Migration("20260522110238_InitialMigrations")]
     partial class InitialMigrations
     {
         /// <inheritdoc />
@@ -85,7 +85,6 @@ namespace Syncra.Infrastructure.Migrations
                         .HasColumnType("numeric(18,2)");
 
                     b.Property<string>("last_event_id")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<long>("last_server_sequence")

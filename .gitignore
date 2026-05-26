@@ -8,9 +8,16 @@ Syncra.Infrastructure/bin
 Syncra.Infrastructure/obj
 Syncra.Worker/bin
 Syncra.Worker/obj
+Syncra.Worker2/bin
+Syncra.Worker2/obj
+Syncra.Worker3/bin
+Syncra.Worker3/obj
 Syncra.Domain/Syncra.Domain.csproj.lscache
 Syncra.Application/Syncra.Application.csproj.lscache
 Syncra.Api/Syncra.Api.csproj.lscache
 Syncra.Infrastructure/Syncra.Infrastructure.csproj.lscache
 .DS_Store
 Syncra.Worker/obj/project.nuget.cache
+Syncra.Worker2/obj/project.nuget.cache
+Syncra.Worker3/obj/project.nuget.cache
+temp.cs

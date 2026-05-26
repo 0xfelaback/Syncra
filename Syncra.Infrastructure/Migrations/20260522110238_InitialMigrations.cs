@@ -94,7 +94,7 @@ namespace Syncra.Infrastructure.Migrations
                     balance = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     provisional_balance = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     version = table.Column<int>(type: "integer", nullable: false),
-                    last_event_id = table.Column<string>(type: "text", nullable: false),
+                    last_event_id = table.Column<string>(type: "text", nullable: true),
                     last_server_sequence = table.Column<long>(type: "bigint", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
