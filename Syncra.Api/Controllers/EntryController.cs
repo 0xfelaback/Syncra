@@ -1,4 +1,6 @@
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Syncra.Application.DTOs;
 
 namespace Syncra.Api.Controllers;
 
@@ -6,13 +8,25 @@ namespace Syncra.Api.Controllers;
 [Route("api")]
 public class EntryController : ControllerBase
 {
+    private readonly IPublishEndpoint _publishEndpoint;
+    public EntryController(IPublishEndpoint publishEndpoint)
+    {
+        _publishEndpoint = publishEndpoint;
+    }
     /// <summary>
     ///  Node submits batch of events for processing.
     /// </summary>
     [HttpPost("sync")]
-    public async Task<IActionResult> SyncEndpoint(SyncRequestDto requestDto)
+    public async Task<IActionResult> SyncEndpoint(SyncRequestDto requestDto, CancellationToken cancellationToken)
     {
-        return Ok();
+        var pubEvents = requestDto.events.Select(item => _publishEndpoint.Publish(item, context =>
+            {
+                context.SetRoutingKey(item.accountId); // set up binding - auto fanout
+            }, cancellationToken));
+        System.Console.WriteLine($"Sendng events to queue, {requestDto.events}");
+
+        await Task.WhenAll(pubEvents);
+        return Ok("sent to exchange.");
     }
 
     /// <summary>

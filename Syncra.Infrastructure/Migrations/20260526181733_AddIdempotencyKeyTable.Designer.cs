@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Syncra.Infrastructure;
@@ -12,9 +13,11 @@ using Syncra.Infrastructure;
 namespace Syncra.Infrastructure.Migrations
 {
     [DbContext(typeof(SyncraDbContext))]
-    partial class SyncraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526181733_AddIdempotencyKeyTable")]
+    partial class AddIdempotencyKeyTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

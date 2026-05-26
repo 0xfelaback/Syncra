@@ -4,6 +4,9 @@
     <ProjectReference Include="..\Syncra.Domain\Syncra.Domain.csproj" />
     <ProjectReference Include="..\Syncra.Application\Syncra.Application.csproj" />
     <ProjectReference Include="..\Syncra.Infrastructure\Syncra.Infrastructure.csproj" />
+    <ProjectReference Include="..\Syncra.Worker/Syncra.Worker.csproj" />
+    <ProjectReference Include="..\Syncra.Worker2/Syncra.Worker2.csproj" />
+    <ProjectReference Include="..\Syncra.Worker3/Syncra.Worker3.csproj" />
   </ItemGroup>
 
   <ItemGroup>

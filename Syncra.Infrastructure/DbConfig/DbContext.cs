@@ -1,5 +1,5 @@
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
+using Syncra.Domain.Entities;
 
 namespace Syncra.Infrastructure;
 
@@ -13,6 +13,7 @@ public class SyncraDbContext(DbContextOptions<SyncraDbContext> options) : DbCont
     public DbSet<Event> Events { get; set; } = null!;
     public DbSet<EventArchive> EventArchives { get; set; } = null!;
     public DbSet<NodeState> NodeStates { get; set; } = null!;
+    public DbSet<IdempotencyKey> IdempotencyKeys { get; set; } = null!;
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SyncraDbContext).Assembly);

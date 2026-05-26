@@ -1,6 +1,9 @@
 using Syncra.Application;
 using Syncra.Infrastructure;
 using Syncra.Domain;
+using Syncra.Worker;
+using Syncra.Worker2;
+using Syncra.Worker3;
 using Microsoft.OpenApi;
 using System.Reflection;
 using Serilog;
@@ -23,7 +26,8 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 builder.Services.AddApiServices().AddApplicationServices();
-builder.Services.AddInfraServices(builder.Configuration.GetConnectionString("localConnectionString")!).AddDomainServices();
+builder.Services.AddInfraServices(builder.Configuration, builder.Configuration.GetConnectionString("localConnectionString")!).AddDomainServices();
+builder.Services.AddWorkerServices().AddWorker2Services().AddWorker3Services();
 
 Log.Logger = new LoggerConfiguration()
 .MinimumLevel.Information()
@@ -53,6 +57,29 @@ else
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Syncra API");
     });
+}
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+
+using (var scope = app.Services.CreateAsyncScope())
+{
+    var dbcontext = scope.ServiceProvider.GetRequiredService<SyncraDbContext>();
+    await dbcontext.Database.EnsureCreatedAsync();
+
+    if (!dbcontext.Users.Any())
+    {
+        var records = DataSeeder.GenerateMockRecords();
+
+        await dbcontext.Users.AddRangeAsync(records["users"].Cast<User>().ToList());
+        await dbcontext.NodeStates.AddRangeAsync(records["nodes"].Cast<NodeState>().ToList());
+        await dbcontext.Accounts.AddRangeAsync(records["accounts"].Cast<Account>().ToList());
+        await dbcontext.AccountStates.AddRangeAsync(records["accountStates"].Cast<AccountState>().ToList());
+        await dbcontext.AccountSnapshots.AddRangeAsync(records["snapshots"].Cast<AccountSnapshot>().ToList());
+        await dbcontext.Events.AddRangeAsync(records["events"].Cast<Event>().ToList());
+        await dbcontext.EventArchives.AddRangeAsync(records["eventArchives"].Cast<EventArchive>().ToList());
+        await dbcontext.Conflicts.AddRangeAsync(records["conflicts"].Cast<Conflict>().ToList());
+        await dbcontext.SaveChangesAsync();
+    }
 }
 
 app.UseHttpsRedirection();
