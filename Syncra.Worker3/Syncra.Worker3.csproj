@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Syncra.Worker3-d96e4179-666b-4056-8520-7ee31807d00d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup> <ProjectReference Include="..\Syncra.Application\Syncra.Application.csproj" />
+ </ItemGroup> 
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="8.5.9" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
+  </ItemGroup>
+</Project>
