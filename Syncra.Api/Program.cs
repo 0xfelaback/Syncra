@@ -2,8 +2,6 @@ using Syncra.Application;
 using Syncra.Infrastructure;
 using Syncra.Domain;
 using Syncra.Worker;
-using Syncra.Worker2;
-using Syncra.Worker3;
 using Microsoft.OpenApi;
 using System.Reflection;
 using Serilog;
@@ -27,7 +25,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddApiServices().AddApplicationServices();
 builder.Services.AddInfraServices(builder.Configuration, builder.Configuration.GetConnectionString("localConnectionString")!).AddDomainServices();
-builder.Services.AddWorkerServices().AddWorker2Services().AddWorker3Services();
+builder.Services.AddWorkerServices();
 
 Log.Logger = new LoggerConfiguration()
 .MinimumLevel.Information()

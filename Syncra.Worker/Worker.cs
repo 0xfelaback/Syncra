@@ -1,13 +1,10 @@
 using MassTransit;
-using Syncra.Application.DTOs;
 using Syncra.Application.Interfaces;
-using Syncra.Domain.Entities;
-
-// TODO: ENSURE HANDLED DISTRIBUTED LOCKING USING OCC!
 
 namespace Syncra.Worker;
 
-public class Worker : IConsumer<SyncEventRequest>, IWorker
+public class Worker : IConsumer<Event>, IWorker
+// ensured events idempotency
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger<Worker> _logger;
@@ -16,50 +13,47 @@ public class Worker : IConsumer<SyncEventRequest>, IWorker
         _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
     }
-    public async Task Consume(ConsumeContext<SyncEventRequest> context)
+    public async Task Consume(ConsumeContext<Event> context)
     {
         // sync transactions
         var message = context.Message;
-        var accId = message.accountId;
-        bool? idempotency = false;
+        var accountId = message.aggregateId;
+        bool idempotency = default;
 
         using (var scope = _serviceScopeFactory.CreateScope())
         {
             var idempotencyRepo = scope.ServiceProvider.GetRequiredService<IIdempotencyKeysRepository>();
-            idempotency = await idempotencyRepo.checkThatEventIdExists(message.event_id);
+            idempotency = await idempotencyRepo.CheckThatEventIdExists(message.event_id);
         }
-
-        if (idempotency.Value)
+        if (idempotency)
         {
             ISendEndpoint endpoint = await context.GetSendEndpoint(new Uri("queue:transactions-idem"));
             await endpoint.Send(message);
-            await Task.CompletedTask;
+            _logger.LogInformation($"An idempotency action was performed for eventId: {message.event_id}");
+            await Task.CompletedTask; // send the event to idempotency queue
             return;
         }
 
-        Event transactionEvent = new Event
+        using (var scope = _serviceScopeFactory.CreateAsyncScope())
         {
-            event_id = message.event_id,
-            parent_event_id = message.parentEventId,
-            aggregateId = message.accountId, //node_id = message.no
-            //idempotency_record = message.id
-            node_sequence = message.nodeSequence,
-            node_timestamp = message.nodeTimestamp,
-            server_sequence = 1,
-            Type = message.eventType,
-            payload = new Event.EventPayloadData
+            var eventRepo = scope.ServiceProvider.GetRequiredService<IEventRepository>();
+
+            Event? even = await eventRepo.GetByIdAsync(message.event_id);
+            if (even == null)
             {
-                amount = message.payload.amount,
-                reason = message.payload.reason,
-                from_account_id = message.accountId,
-                to_account_id = message.payload.to_account_id
-            },
-            Status = Event.EventStatus.Pending,
-        };
-        IdempotencyKey newIdempotency = new IdempotencyKey
+                _logger.LogError($"An Event that is not recorded in database happened to be transmitted: {message.event_id}");
+                throw new NullReferenceException("An Event that is not recorded in database happened to be transmitted");
+            }
+
+            long? lastServerSequence = await eventRepo.GetLastServerSequence();
+            even.server_sequence = lastServerSequence!.Value + 1;
+            _logger.LogInformation($"Assigned last_server_sequence of {lastServerSequence!.Value + 1} to event: {message.event_id}");
+
+        }
+        /*IdempotencyKey newIdempotency = new IdempotencyKey
         {
             event_id = message.event_id,
-        };
+        };*/
 
 
 
@@ -71,5 +65,5 @@ public class Worker : IConsumer<SyncEventRequest>, IWorker
 
 public interface IWorker
 {
-    Task Consume(ConsumeContext<SyncEventRequest> context);
+    Task Consume(ConsumeContext<Event> context);
 }
