@@ -12,5 +12,6 @@ public class AccountStateConfiguration : IEntityTypeConfiguration<AccountState>
         builder.Property(a => a.last_server_sequence).IsRequired();
         builder.Property(a => a.last_event_id);
         builder.HasOne(a => a.last_event).WithOne().HasForeignKey<AccountState>(a => a.last_event_id).IsRequired(false);
+        builder.Property(a => a.Version).IsRowVersion();
     }
 }

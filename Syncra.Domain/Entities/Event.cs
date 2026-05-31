@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Syncra.Domain.Entities;
 
@@ -8,7 +9,9 @@ public class Event
     [ForeignKey("parent_event")]
     public string? parent_event_id { get; set; } = null; // previous one before
     public Event? parent_event { get; set; } = null;
+    [ForeignKey("aggregate")]
     public string? aggregateId { get; set; } = null; // TODO: Account initiating event
+    public Account aggregate { get; set; } = null!;
     [ForeignKey("compensates_event")]
     public string? compensates_event_id { get; set; } = null; // if compensated event, what event did this reverse
     public Event? compensates_event { get; set; } = null;
@@ -25,9 +28,9 @@ public class Event
     public NodeState node { get; set; } = null!;
     public IdempotencyKey idempotency_record { get; set; } = null!;
     public int node_sequence { get; set; }
-    public long server_sequence { get; set; }
+    public long? server_sequence { get; set; }
     public DateTime node_timestamp { get; set; }
-    public DateTime? server_timestamp { get; set; } = DateTime.Now;
+    public DateTime? server_timestamp { get; set; }
     public EventType Type { get; set; }
     public EventPayloadData payload { get; set; } = null!;
     public EventStatus Status { get; set; }
@@ -51,5 +54,7 @@ public class Event
         public string to_account_id { get; set; } = null!;
         public Account to_account { get; set; } = null!;
     }
+    [Timestamp]
+    public uint Version { get; set; }
 }
 

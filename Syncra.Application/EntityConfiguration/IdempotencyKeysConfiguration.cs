@@ -8,10 +8,12 @@ namespace Syncra.Application.EntityConfiguration
     {
         public void Configure(EntityTypeBuilder<IdempotencyKey> builder)
         {
-            builder.HasKey(x => x.event_id);
+            builder.HasKey(x => x.idempotency_key);
+            builder.HasIndex(x => x.event_id).IsUnique();
             builder.HasOne(x => x.caused_event).WithOne(e => e.idempotency_record).HasForeignKey<IdempotencyKey>(x => x.event_id);
             builder.Property(x => x.response_body).IsRequired();
             builder.Property(x => x.response_status).IsRequired();
+            builder.Property(x => x.Version).IsRowVersion();
         }
     }
 }

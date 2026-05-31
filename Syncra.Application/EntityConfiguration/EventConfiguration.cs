@@ -7,12 +7,12 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
     {
         builder.HasKey(e => e.event_id);
         builder.Property(e => e.node_id).IsRequired();
-        builder.HasIndex(e => e.node_id);
+        builder.HasIndex(e => e.node_id).IsUnique();
+        builder.Property(e => e.Version).IsRowVersion();
         builder.Property(e => e.node_sequence).IsRequired();
-        builder.Property(e => e.server_sequence).IsRequired();
-        builder.HasIndex(e => e.server_sequence).IsUnique();
+        builder.Property(e => e.server_sequence).IsRequired(false);
         builder.Property(e => e.node_timestamp).IsRequired();
-        builder.Property(e => e.server_sequence).IsRequired();
+        builder.Property(e => e.server_sequence).ValueGeneratedOnAdd();
         builder.Property(e => e.created_at).IsRequired();
         builder.HasIndex(e => e.server_timestamp);
         builder.Property(e => e.Type).IsRequired();
@@ -37,8 +37,6 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.HasOne(e => e.compensates_conflict)
             .WithOne()
             .HasForeignKey<Event>(e => e.compensates_conflict_id).IsRequired(false);
-
-
 
     }
 }

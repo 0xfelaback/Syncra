@@ -9,5 +9,6 @@ public class UserCofiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.userName).IsRequired();
         builder.Property(u => u.passwordhash).IsRequired();
         builder.HasMany(u => u.accounts).WithOne(a => a.user).HasForeignKey(a => a.userId);
+        builder.Property(u => u.Version).IsRowVersion();
     }
 }

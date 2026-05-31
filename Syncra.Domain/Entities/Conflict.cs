@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 public class Conflict
@@ -40,4 +41,6 @@ public class Conflict
     {
         compensate, reject
     }
+    [Timestamp]
+    public uint Version { get; set; }
 }

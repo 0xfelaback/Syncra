@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 public class EventArchive
@@ -10,11 +11,14 @@ public class EventArchive
     [ForeignKey("compensates_event")]
     public string? compensates_event_id { get; set; }
     public EventArchive? compensates_event { get; set; } = null;
+    [ForeignKey("aggregate")]
+    public string? aggregateId { get; set; } = null;
+    public Account aggregate { get; set; } = null!;
     [ForeignKey("node")]
     public string node_id { get; set; } = null!;
     public NodeState node { get; set; } = null!;
     public int node_sequence { get; set; }
-    public long server_sequence { get; set; }
+    public long? server_sequence { get; set; }
     public DateTime node_timestamp { get; set; }
     public DateTime server_timestamp { get; set; }
     public EventArchiveType Type { get; set; }
@@ -51,5 +55,7 @@ public class EventArchive
         public string to_account_id { get; set; } = null!;
         public Account to_account { get; set; } = null!;
     }
+    [Timestamp]
+    public uint Version { get; set; }
 
 }
