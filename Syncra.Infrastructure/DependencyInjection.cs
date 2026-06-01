@@ -63,6 +63,10 @@ public static class DependencyInjection
         );
         services.AddScoped<IIdempotencyKeysRepository, IdempotencyKeysRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IConflictRepository, ConflictRepository>();
+        services.AddScoped<IAccountSnapshotRepository, AccountSnapshotRepository>();
+        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<INodeStateRepository, NodeStateRepository>();
         return services;
     }
 }

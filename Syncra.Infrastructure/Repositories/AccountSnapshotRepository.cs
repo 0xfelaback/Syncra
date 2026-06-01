@@ -16,6 +16,11 @@ namespace Syncra.Infrastructure.Repositories
             return await _context.AccountSnapshots.AsNoTracking()
                 .FirstOrDefaultAsync(s => s.snapshot_id == id, cancellationToken);
         }
+        public async Task<AccountSnapshot?> GetByLastByAccountIdAsync(string accountId, CancellationToken cancellationToken = default)
+        {
+            return await _context.AccountSnapshots.AsNoTracking().OrderByDescending(s => s.snapshot_sequence)
+                .FirstOrDefaultAsync(s => s.account_id == accountId, cancellationToken);
+        }
 
         public async Task<IEnumerable<AccountSnapshot>> GetAllAsync(CancellationToken cancellationToken = default)
         {

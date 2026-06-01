@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Syncra.Application.Interfaces;
 
 namespace Syncra.Infrastructure.Repositories
 {
@@ -11,38 +12,33 @@ namespace Syncra.Infrastructure.Repositories
         }
         public async Task<Event?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            return await _context.Events
+            return await _context.Events.AsNoTracking()
                 .FirstOrDefaultAsync(e => e.event_id == id, cancellationToken);
         }
 
         public async Task<IEnumerable<Event>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.Events
-
-                .ToListAsync(cancellationToken);
+            return await _context.Events.AsNoTracking().ToListAsync(cancellationToken);
         }
-
         public async Task<IEnumerable<Event>> GetByAccountIdAsync(string accountId, CancellationToken cancellationToken = default)
         {
-            return await _context.Events
-
-                .Where(e => e.aggregateId == accountId)
+            return await _context.Events.AsNoTracking().Where(e => e.aggregateId == accountId)
                 .ToListAsync(cancellationToken);
         }
-
         public async Task<long?> GetLastServerSequence(CancellationToken cancellationToken = default)
         {
             return await _context.Events
-                .Where(e => e.server_sequence != null)
+                .Where(e => e.server_sequence != null).AsNoTracking()
                 .OrderByDescending(e => e.event_id)
                 .Select(e => e.server_sequence)
                 .FirstOrDefaultAsync(cancellationToken);
         }
+        public async Task<List<Event>?> GetEventsSinceLastSnap(long lastServerSequence, long newServerSequence, string accountId)
+        {
+            return await _context.Events.Where(e => e.server_sequence > lastServerSequence && e.server_sequence < newServerSequence && e.aggregateId == accountId).OrderBy(e => e.server_sequence).AsNoTracking().ToListAsync();
+        }
 
         public async Task AddAsync(Event e, CancellationToken cancellationToken = default) => await _context.Events.AddAsync(e, cancellationToken);
-
-
-
         public async Task AddCollectionOfEvents(ICollection<Event> events, CancellationToken cancellationToken = default)
         {
             await _context.Events.AddRangeAsync(events, cancellationToken);
