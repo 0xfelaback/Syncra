@@ -15,22 +15,18 @@ namespace Syncra.Infrastructure.Repositories
 
         public async Task<EventArchive?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            return await _context.EventArchives
+            return await _context.EventArchives.AsNoTracking()
                 .FirstOrDefaultAsync(e => e.event_id == id, cancellationToken);
         }
 
         public async Task<IEnumerable<EventArchive>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.EventArchives
-                
-                .ToListAsync(cancellationToken);
+            return await _context.EventArchives.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<EventArchive>> GetByAccountIdAsync(string accountId, CancellationToken cancellationToken = default)
         {
-            return await _context.EventArchives
-                
-                .Where(e => e.aggregateId == accountId)
+            return await _context.EventArchives.Where(e => e.aggregateId == accountId).AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 

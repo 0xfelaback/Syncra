@@ -1,8 +1,13 @@
+using FluentValidation;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Syncra.Application.DTOs;
 
 namespace Syncra.Api.Controllers;
+
+/* 
+TODO: USE DAPPER FOR OPTIMIZED READS, IMPLEMENT LOGGING MIDDLEWARE
+*/
 
 [ApiController]
 [Route("api")]
@@ -19,16 +24,14 @@ public class EntryController : ControllerBase
     ///  Node submits batch of events for processing.
     /// </summary>
     [HttpPost("sync")]
-    public async Task<IActionResult> SyncEndpoint(SyncRequestDto requestDto, CancellationToken cancellationToken)
+    public async Task<IActionResult> SyncEndpoint([FromBody] SyncRequestDto requestDto, CancellationToken cancellationToken)
     {
-
         var events = await _entryService.SaveBatchRequests(requestDto.nodeId, requestDto.events, cancellationToken);
         var pubEvents = events.Select(item => _publishEndpoint.Publish(item, context =>
             {
                 context.SetRoutingKey(item.aggregateId); // setup distributed lock! - important
             }, cancellationToken));
         Console.WriteLine($"Sendng events to queue, {requestDto.events}");
-
         await Task.WhenAll(pubEvents);
         return Ok("sent to exchange.");
     }

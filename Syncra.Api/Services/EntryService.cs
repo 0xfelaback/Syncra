@@ -1,4 +1,5 @@
 using Syncra.Application.DTOs;
+using Syncra.Application.Interfaces;
 
 public class EntryService : IEntryService
 {

@@ -13,19 +13,19 @@ namespace Syncra.Infrastructure.Repositories
 
         public async Task<AccountSnapshot?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await _context.AccountSnapshots
+            return await _context.AccountSnapshots.AsNoTracking()
                 .FirstOrDefaultAsync(s => s.snapshot_id == id, cancellationToken);
         }
 
         public async Task<IEnumerable<AccountSnapshot>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.AccountSnapshots
+            return await _context.AccountSnapshots.AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<AccountSnapshot>> GetByAccountIdAsync(string accountId, CancellationToken cancellationToken = default)
         {
-            return await _context.AccountSnapshots
+            return await _context.AccountSnapshots.AsNoTracking()
                 .Where(s => s.account_id == accountId)
                 .ToListAsync(cancellationToken);
         }

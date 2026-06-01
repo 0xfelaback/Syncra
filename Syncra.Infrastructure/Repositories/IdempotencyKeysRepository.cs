@@ -16,18 +16,18 @@ namespace Syncra.Infrastructure.Repositories
 
         public async Task<IdempotencyKey?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            return await _context.IdempotencyKeys
+            return await _context.IdempotencyKeys.AsNoTracking()
                 .FirstOrDefaultAsync(i => i.idempotency_key == id, cancellationToken);
         }
 
         public async Task<IEnumerable<IdempotencyKey>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.IdempotencyKeys.ToListAsync(cancellationToken);
+            return await _context.IdempotencyKeys.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<bool> CheckThatEventIdExists(string eventId, CancellationToken cancellationToken = default)
         {
-            return await _context.IdempotencyKeys.AnyAsync(x => x.event_id == eventId, cancellationToken);
+            return await _context.IdempotencyKeys.AsNoTracking().AnyAsync(x => x.event_id == eventId, cancellationToken);
         }
 
         public async Task AddAsync(IdempotencyKey idempotencyKey, CancellationToken cancellationToken = default)

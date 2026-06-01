@@ -13,13 +13,13 @@ namespace Syncra.Infrastructure.Repositories
 
         public async Task<AccountState?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            return await _context.AccountStates
+            return await _context.AccountStates.AsNoTracking()
                 .FirstOrDefaultAsync(s => s.account_id == id, cancellationToken);
         }
 
         public async Task<IEnumerable<AccountState>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.AccountStates
+            return await _context.AccountStates.AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 

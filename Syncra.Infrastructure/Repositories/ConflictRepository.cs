@@ -13,21 +13,19 @@ namespace Syncra.Infrastructure.Repositories
 
         public async Task<Conflict?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await _context.Conflicts
-
-                .FirstOrDefaultAsync(c => c.conflict_id == id, cancellationToken);
+            return await _context.Conflicts.AsNoTracking().FirstOrDefaultAsync(c => c.conflict_id == id, cancellationToken);
         }
 
         public async Task<IEnumerable<Conflict>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.Conflicts
+            return await _context.Conflicts.AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<Conflict>> GetByAccountIdAsync(string accountId, CancellationToken cancellationToken = default)
         {
             return await _context.Conflicts
-                .Where(c => c.account_id == accountId)
+                .Where(c => c.account_id == accountId).AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 
