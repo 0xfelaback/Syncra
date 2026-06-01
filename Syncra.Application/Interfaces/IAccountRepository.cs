@@ -1,5 +1,3 @@
-using Syncra.Domain.Entities;
-
 namespace Syncra.Application.Interfaces
 {
     public interface IAccountRepository

@@ -164,7 +164,6 @@ public class DataSeeder
             account = null!,
             snapshot_sequence = random.Next(1, eventCount + 1),
             balance = Math.Round((decimal)random.NextDouble() * 25000m - 5000m, 2),
-            version = random.Next(1, 100),
             event_count = random.Next(1, 1000),
             created_at = DateTime.UtcNow.AddDays(-random.Next(0, 30))
         }).ToList();

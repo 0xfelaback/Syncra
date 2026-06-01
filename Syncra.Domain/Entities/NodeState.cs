@@ -10,9 +10,10 @@ public class NodeState
     public int pending_events_count { get; set; } = 0;
     public DateTime? last_sync_attempt { get; set; } = null;
     public DateTime? last_successful_sync { get; set; } = null;
-    public DateTime last_seen { get; set; } = DateTime.Now;
+    public DateTime last_seen { get; set; } = DateTime.UtcNow;
     public virtual ICollection<Event> events { get; set; } = new List<Event>();
     public virtual ICollection<EventArchive> eventsArchive { get; set; } = new List<EventArchive>();
-    [Timestamp]
+    //[Timestamp]
+    //[ConcurrencyCheck]
     public uint Version { get; set; }
 }

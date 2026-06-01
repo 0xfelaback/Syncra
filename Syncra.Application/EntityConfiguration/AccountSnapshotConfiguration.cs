@@ -10,8 +10,10 @@ public class AccountSnapshotConfiguration : IEntityTypeConfiguration<AccountSnap
         builder.HasIndex(a => a.account_id);
         builder.Property(a => a.snapshot_sequence).IsRequired();
         builder.Property(a => a.balance).IsRequired().HasPrecision(18, 2);
-        builder.Property(a => a.version).IsRequired();
         builder.Property(a => a.event_count).IsRequired();
-        builder.Property(a => a.Version).IsRowVersion();
+        builder.Property(e => e.AccountVersion)
+              .HasColumnName("account_version")
+              .IsRequired();
+        builder.Property(a => a.Version).IsRowVersion().HasColumnName("version_control").IsConcurrencyToken();//.HasColumnType("xid").HasColumnName("xmin").IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
     }
 }

@@ -14,7 +14,8 @@ public class AccountState
     public string? last_event_id { get; set; } = null; // last event synced by account
     public Event last_event { get; set; } = null!;
     public long? last_server_sequence { get; set; } = null;
-    [Timestamp]
+    //[Timestamp]
+    //[ConcurrencyCheck]
     public uint Version { get; set; }
-    public DateTime updated_at { get; set; } = DateTime.Now;
+    public DateTime updated_at { get; set; } = DateTime.UtcNow;
 }

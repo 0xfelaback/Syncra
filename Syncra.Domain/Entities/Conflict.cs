@@ -5,7 +5,7 @@ public class Conflict
 {
     // Audit trail of detected conflicts and resolutions - complete
     public int conflict_id { get; set; }
-    public DateTime detected_at { get; set; } = DateTime.Now;
+    public DateTime detected_at { get; set; } = DateTime.UtcNow;
     public string account_id { get; set; } = null!;
     public Account account { get; set; } = null!;
     //[ForeignKey("original_event")]
@@ -41,6 +41,7 @@ public class Conflict
     {
         compensate, reject
     }
-    [Timestamp]
+    //[Timestamp]
+    //[ConcurrencyCheck]
     public uint Version { get; set; }
 }

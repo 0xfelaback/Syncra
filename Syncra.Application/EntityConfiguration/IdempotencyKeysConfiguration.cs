@@ -13,7 +13,7 @@ namespace Syncra.Application.EntityConfiguration
             builder.HasOne(x => x.caused_event).WithOne(e => e.idempotency_record).HasForeignKey<IdempotencyKey>(x => x.event_id);
             builder.Property(x => x.response_body).IsRequired();
             builder.Property(x => x.response_status).IsRequired();
-            builder.Property(x => x.Version).IsRowVersion();
+            builder.Property(x => x.Version).IsRowVersion().HasColumnName("version_control").IsConcurrencyToken();//.HasColumnType("xid").HasColumnName("xmin").IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
         }
     }
 }

@@ -7,7 +7,8 @@ public class Account
     public int userId { get; set; }
     public User user { get; set; } = null!;
     public AccountState account_state { get; set; } = null!;
-    [Timestamp]
+    //[Timestamp]
+    //[ConcurrencyCheck]
     public uint Version { get; set; }
     public virtual ICollection<AccountSnapshot> account_snapshots { get; set; } = new List<AccountSnapshot>();
     public virtual ICollection<Conflict> conflicts { get; set; } = [];

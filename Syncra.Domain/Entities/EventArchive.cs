@@ -24,7 +24,7 @@ public class EventArchive
     public EventArchiveType Type { get; set; }
     public EventArchivePayloadData payload { get; set; } = null!;
     public EventArchiveStatus Status { get; set; }
-    public DateTime created_at { get; set; } = DateTime.Now;
+    public DateTime created_at { get; set; } = DateTime.UtcNow;
     //[ForeignKey("caused_conflict")]
     public int? caused_conflict_id { get; set; } = null; // if event caused a conflict
     [InverseProperty(nameof(Conflict.original_event_archive))]
@@ -55,7 +55,8 @@ public class EventArchive
         public string to_account_id { get; set; } = null!;
         public Account to_account { get; set; } = null!;
     }
-    [Timestamp]
+    //[Timestamp]
+    //[ConcurrencyCheck]
     public uint Version { get; set; }
 
 }

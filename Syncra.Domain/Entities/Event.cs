@@ -34,7 +34,7 @@ public class Event
     public EventType Type { get; set; }
     public EventPayloadData payload { get; set; } = null!;
     public EventStatus Status { get; set; }
-    public DateTime created_at { get; set; } = DateTime.Now;
+    public DateTime created_at { get; set; } = DateTime.UtcNow;
     public enum EventType
     {
         AccountDebited = 1, AccountCredited, CompensatingTransaction, RejectedTransaction
@@ -54,7 +54,8 @@ public class Event
         public string to_account_id { get; set; } = null!;
         public Account to_account { get; set; } = null!;
     }
-    [Timestamp]
+    //[Timestamp]
+    //[ConcurrencyCheck]
     public uint Version { get; set; }
 }
 

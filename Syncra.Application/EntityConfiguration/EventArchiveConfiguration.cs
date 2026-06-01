@@ -10,8 +10,8 @@ public class EventArchiveConfiguration : IEntityTypeConfiguration<EventArchive>
         builder.HasIndex(e => e.node_id);
         builder.Property(e => e.node_sequence).IsRequired();
         builder.Property(e => e.server_sequence).IsRequired(false);
+        builder.HasIndex(e => e.server_sequence).IsUnique();
         builder.Property(e => e.node_timestamp).IsRequired();
-        builder.Property(e => e.server_sequence).IsRequired();
         builder.HasIndex(e => e.server_timestamp);
         builder.Property(e => e.Type).IsRequired();
         builder.Property(e => e.Status).IsRequired();
@@ -41,6 +41,6 @@ public class EventArchiveConfiguration : IEntityTypeConfiguration<EventArchive>
             .WithOne()
             .HasForeignKey<EventArchive>(e => e.compensates_conflict_id).IsRequired(false);
 
-        builder.Property(e => e.Version).IsRowVersion();
+        builder.Property(e => e.Version).IsRowVersion().HasColumnName("version_control").IsConcurrencyToken();//.HasColumnType("xid").HasColumnName("xmin").IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
     }
 }

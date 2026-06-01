@@ -1,4 +1,4 @@
-using Syncra.Domain.Entities;
+
 
 namespace Syncra.Application.Interfaces
 {
