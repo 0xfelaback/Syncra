@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Syncra.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateMigrationswithOCC : Migration
+    public partial class ImplementApplicationmanagedConcurrencyTokens : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,6 +35,10 @@ namespace Syncra.Infrastructure.Migrations
                 name: "account_id",
                 table: "Events");
 
+            migrationBuilder.DropColumn(
+                name: "version",
+                table: "AccountSnapshots");
+
             migrationBuilder.RenameColumn(
                 name: "account_id",
                 table: "EventArchives",
@@ -44,24 +49,19 @@ namespace Syncra.Infrastructure.Migrations
                 table: "EventArchives",
                 newName: "IX_EventArchives_aggregateId");
 
-            migrationBuilder.RenameColumn(
-                name: "version",
-                table: "AccountSnapshots",
-                newName: "version_control");
-
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "Users",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "NodeStates",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.AddColumn<string>(
                 name: "idempotency_key",
@@ -70,12 +70,12 @@ namespace Syncra.Infrastructure.Migrations
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "IdempotencyKeys",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.AlterColumn<long>(
                 name: "server_sequence",
@@ -85,12 +85,12 @@ namespace Syncra.Infrastructure.Migrations
                 oldClrType: typeof(long),
                 oldType: "bigint");
 
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "Events",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.AlterColumn<long>(
                 name: "server_sequence",
@@ -100,45 +100,40 @@ namespace Syncra.Infrastructure.Migrations
                 oldClrType: typeof(long),
                 oldType: "bigint");
 
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "EventArchives",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "Conflicts",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "AccountStates",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
-            migrationBuilder.RenameColumn(
-                name: "version",
-                table: "AccountSnapshots",
-                newName: "account_version");
-
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "AccountSnapshots",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
-            migrationBuilder.AddColumn<uint>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "version_control",
                 table: "Accounts",
-                type: "xid",
-                rowVersion: true,
-                nullable: false);
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_IdempotencyKeys",
@@ -238,6 +233,10 @@ namespace Syncra.Infrastructure.Migrations
 
             migrationBuilder.DropColumn(
                 name: "version_control",
+                table: "AccountSnapshots");
+
+            migrationBuilder.DropColumn(
+                name: "version_control",
                 table: "Accounts");
 
             migrationBuilder.RenameColumn(
@@ -249,11 +248,6 @@ namespace Syncra.Infrastructure.Migrations
                 name: "IX_EventArchives_aggregateId",
                 table: "EventArchives",
                 newName: "IX_EventArchives_account_id");
-
-            migrationBuilder.RenameColumn(
-                name: "version_control",
-                table: "AccountSnapshots",
-                newName: "version");
 
             migrationBuilder.AlterColumn<long>(
                 name: "server_sequence",
@@ -281,14 +275,12 @@ namespace Syncra.Infrastructure.Migrations
                 oldType: "bigint",
                 oldNullable: true);
 
-            migrationBuilder.AlterColumn<int>(
+            migrationBuilder.AddColumn<int>(
                 name: "version",
                 table: "AccountSnapshots",
                 type: "integer",
                 nullable: false,
-                oldClrType: typeof(uint),
-                oldType: "xid",
-                oldRowVersion: true);
+                defaultValue: 0);
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_IdempotencyKeys",

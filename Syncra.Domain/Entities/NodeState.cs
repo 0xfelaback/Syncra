@@ -13,7 +13,6 @@ public class NodeState
     public DateTime last_seen { get; set; } = DateTime.UtcNow;
     public virtual ICollection<Event> events { get; set; } = new List<Event>();
     public virtual ICollection<EventArchive> eventsArchive { get; set; } = new List<EventArchive>();
-    //[Timestamp]
-    //[ConcurrencyCheck]
-    public uint Version { get; set; }
+    [ConcurrencyCheck]
+    public Guid Version { get; set; }
 }

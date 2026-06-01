@@ -10,9 +10,7 @@ public class AccountSnapshot
     public decimal balance { get; set; }
     //public int version { get; set; } // Account version at snapshot point
     public int event_count { get; set; } = 100; // Total events processed up to this point
-    //[Timestamp]
-    //[ConcurrencyCheck]
-    public int AccountVersion { get; set; } // TODO: delete this column
-    public uint Version { get; set; }
+    [ConcurrencyCheck]
+    public Guid AccountVersion { get; set; }
     public DateTime created_at { get; set; } = DateTime.UtcNow;
 }

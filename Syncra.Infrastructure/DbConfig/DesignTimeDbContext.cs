@@ -14,7 +14,7 @@ public class SyncraDbContextFactory : IDesignTimeDbContextFactory<SyncraDbContex
             .Build();
         string connString = configuration.GetConnectionString("localConnectionString")!;
         var optionsBuilder = new DbContextOptionsBuilder<SyncraDbContext>();
-        optionsBuilder.UseNpgsql(connString);
+        optionsBuilder.UseNpgsql(connString).AddInterceptors(new ConcurrencyTokenInterceptor());
 
         return new SyncraDbContext(optionsBuilder.Options);
     }

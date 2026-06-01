@@ -41,6 +41,6 @@ public class EventArchiveConfiguration : IEntityTypeConfiguration<EventArchive>
             .WithOne()
             .HasForeignKey<EventArchive>(e => e.compensates_conflict_id).IsRequired(false);
 
-        builder.Property(e => e.Version).IsRowVersion().HasColumnName("version_control").IsConcurrencyToken();//.HasColumnType("xid").HasColumnName("xmin").IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+        builder.Property(a => a.Version).HasColumnName("version_control");
     }
 }

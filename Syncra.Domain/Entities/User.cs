@@ -6,7 +6,6 @@ public class User
     public string userName { get; set; } = null!;
     public string passwordhash { get; set; } = null!;
     public virtual ICollection<Account> accounts { get; set; } = new List<Account>();
-    //[Timestamp]
-    //[ConcurrencyCheck]
-    public uint Version { get; set; }
+    [ConcurrencyCheck]
+    public Guid Version { get; set; }
 }

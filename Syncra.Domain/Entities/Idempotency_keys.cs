@@ -14,8 +14,7 @@ namespace Syncra.Domain.Entities
         public int response_status { get; set; }
         public JsonDocument response_body { get; set; } = null!;
         public DateTimeOffset createdAt { get; set; } = DateTimeOffset.UtcNow;
-        //[Timestamp]
-        //[ConcurrencyCheck]
-        public uint Version { get; set; }
+        [ConcurrencyCheck]
+        public Guid Version { get; set; }
     }
 }

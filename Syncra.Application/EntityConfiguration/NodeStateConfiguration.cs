@@ -9,6 +9,6 @@ public class NodeStateConfiguration : IEntityTypeConfiguration<NodeState>
         builder.Property(n => n.status).IsRequired();
         builder.Property(n => n.local_sequence).IsRequired();
         builder.Property(n => n.last_synced_server_sequence).IsRequired();
-        builder.Property(n => n.Version).IsRowVersion().HasColumnName("version_control").IsConcurrencyToken();//.HasColumnType("xid").HasColumnName("xmin").IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+        builder.Property(a => a.Version).HasColumnName("version_control");
     }
 }

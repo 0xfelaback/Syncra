@@ -11,7 +11,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfraServices(this IServiceCollection services, IConfiguration configuration, string connString)
     {
-        services.AddDbContext<SyncraDbContext>(options => options.UseNpgsql(connString));
+        services.AddDbContext<SyncraDbContext>(options => options.UseNpgsql(connString).AddInterceptors(new ConcurrencyTokenInterceptor()));
         services.AddMassTransit(config =>
         {
             config.SetKebabCaseEndpointNameFormatter();

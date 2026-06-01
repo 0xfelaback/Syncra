@@ -28,6 +28,6 @@ public class ConflictConfiguration : IEntityTypeConfiguration<Conflict>
         builder.Property(c => c.atempted_balance).IsRequired().HasPrecision(18, 2);
         builder.Property(c => c.actual_balance).IsRequired().HasPrecision(18, 2);
         builder.Property(c => c.resolution).IsRequired();
-        builder.Property(c => c.Version).IsRowVersion().HasColumnName("version_control").IsConcurrencyToken();//.HasColumnType("xid").HasColumnName("xmin").IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+        builder.Property(a => a.Version).HasColumnName("version_control");
     }
 }

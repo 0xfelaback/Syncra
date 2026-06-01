@@ -54,8 +54,7 @@ public class Event
         public string to_account_id { get; set; } = null!;
         public Account to_account { get; set; } = null!;
     }
-    //[Timestamp]
-    //[ConcurrencyCheck]
-    public uint Version { get; set; }
+    [ConcurrencyCheck]
+    public Guid Version { get; set; }
 }
 

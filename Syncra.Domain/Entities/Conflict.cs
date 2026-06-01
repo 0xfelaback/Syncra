@@ -41,7 +41,6 @@ public class Conflict
     {
         compensate, reject
     }
-    //[Timestamp]
-    //[ConcurrencyCheck]
-    public uint Version { get; set; }
+    [ConcurrencyCheck]
+    public Guid Version { get; set; }
 }

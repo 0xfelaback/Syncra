@@ -11,9 +11,8 @@ public class AccountSnapshotConfiguration : IEntityTypeConfiguration<AccountSnap
         builder.Property(a => a.snapshot_sequence).IsRequired();
         builder.Property(a => a.balance).IsRequired().HasPrecision(18, 2);
         builder.Property(a => a.event_count).IsRequired();
-        builder.Property(e => e.AccountVersion)
-              .HasColumnName("account_version")
-              .IsRequired();
-        builder.Property(a => a.Version).IsRowVersion().HasColumnName("version_control").IsConcurrencyToken();//.HasColumnType("xid").HasColumnName("xmin").IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+
+        builder.Property(a => a.AccountVersion).HasColumnName("version_control");
+
     }
 }

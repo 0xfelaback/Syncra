@@ -13,8 +13,8 @@ using Syncra.Infrastructure;
 namespace Syncra.Infrastructure.Migrations
 {
     [DbContext(typeof(SyncraDbContext))]
-    [Migration("20260601200514_AddRestFromPending🏃")]
-    partial class AddRestFromPending
+    [Migration("20260601223023_ImplementApplicationmanagedConcurrencyTokens😭")]
+    partial class ImplementApplicationmanagedConcurrencyTokens
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,10 +31,9 @@ namespace Syncra.Infrastructure.Migrations
                     b.Property<string>("account_id")
                         .HasColumnType("text");
 
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<int>("userId")
@@ -55,14 +54,9 @@ namespace Syncra.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("snapshot_id"));
 
-                    b.Property<int>("AccountVersion")
-                        .HasColumnType("integer")
-                        .HasColumnName("account_version");
-
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("AccountVersion")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<string>("account_id")
@@ -94,10 +88,9 @@ namespace Syncra.Infrastructure.Migrations
                     b.Property<string>("account_id")
                         .HasColumnType("text");
 
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<decimal>("balance")
@@ -139,10 +132,9 @@ namespace Syncra.Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<string>("account_id")
@@ -205,10 +197,9 @@ namespace Syncra.Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<string>("aggregateId")
@@ -283,10 +274,9 @@ namespace Syncra.Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<string>("aggregateId")
@@ -354,10 +344,9 @@ namespace Syncra.Infrastructure.Migrations
                     b.Property<string>("node_id")
                         .HasColumnType("text");
 
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<DateTime>("last_seen")
@@ -392,10 +381,9 @@ namespace Syncra.Infrastructure.Migrations
                     b.Property<string>("idempotency_key")
                         .HasColumnType("text");
 
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<DateTimeOffset>("createdAt")
@@ -428,10 +416,9 @@ namespace Syncra.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("userId"));
 
-                    b.Property<uint>("Version")
+                    b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
+                        .HasColumnType("uuid")
                         .HasColumnName("version_control");
 
                     b.Property<string>("passwordhash")

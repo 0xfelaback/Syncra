@@ -8,12 +8,11 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.HasKey(e => e.event_id);
         builder.Property(e => e.node_id).IsRequired();
         builder.HasIndex(e => e.node_id).IsUnique();
-        builder.Property(e => e.Version).IsRowVersion().HasColumnName("version_control").IsConcurrencyToken();//.HasColumnType("xid").HasColumnName("xmin").IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+        builder.Property(a => a.Version).HasColumnName("version_control");
         builder.Property(e => e.node_sequence).IsRequired();
         builder.Property(e => e.server_sequence).IsRequired(false);
         builder.HasIndex(e => e.server_sequence).IsUnique();
         builder.Property(e => e.node_timestamp).IsRequired();
-        //builder.Property(e => e.server_sequence).ValueGeneratedOnAdd(); - not important here
         builder.Property(e => e.created_at).IsRequired();
         builder.HasIndex(e => e.server_timestamp);
         builder.Property(e => e.Type).IsRequired();
