@@ -11,5 +11,6 @@ public interface IEventRepository
     Task AddCollectionOfEvents(ICollection<Event> events, CancellationToken cancellationToken = default);
     Task UpdateAsync(Event e, CancellationToken cancellationToken = default);
     Task DeleteAsync(string id, CancellationToken cancellationToken = default);
+    Task<bool> VerifyEventIdAsync(string id, CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

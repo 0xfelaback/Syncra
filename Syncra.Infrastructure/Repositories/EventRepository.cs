@@ -15,6 +15,10 @@ namespace Syncra.Infrastructure.Repositories
             return await _context.Events.AsNoTracking()
                 .FirstOrDefaultAsync(e => e.event_id == id, cancellationToken);
         }
+        public async Task<bool> VerifyEventIdAsync(string id, CancellationToken cancellationToken = default)
+        {
+            return await _context.Events.AnyAsync(e => e.event_id == id, cancellationToken);
+        }
 
         public async Task<IEnumerable<Event>> GetAllAsync(CancellationToken cancellationToken = default)
         {

@@ -3,19 +3,20 @@ using Syncra.Worker;
 
 public class EventValidatorService : IEventValidatorService
 {
-    private readonly IAccountSnapshotRepository _accountSnapRepo;
+    private readonly IAccountSnapshotRepository _accountSnapshotRepository;
     private readonly IAccountRepository _accountRepository;
     private readonly INodeStateRepository _nodeStateRepository;
-    IEventRepository _eventRepository;
+    private readonly IEventRepository _eventRepository;
     private readonly ILogger<Worker> _logger;
     public EventValidatorService(
-        IAccountSnapshotRepository accountSnapRepo,
+        IAccountSnapshotRepository accountSnapshotRepository,
         IAccountRepository accountRepository,
         INodeStateRepository nodeStateRepository,
         IEventRepository eventRepository,
         ILogger<Worker> logger)
     {
-        _accountSnapRepo = accountSnapRepo;
+
+        _accountSnapshotRepository = accountSnapshotRepository;
         _accountRepository = accountRepository;
         _nodeStateRepository = nodeStateRepository;
         _eventRepository = eventRepository;
@@ -23,7 +24,7 @@ public class EventValidatorService : IEventValidatorService
     }
     public async Task<(decimal snapBalance, long snapSequence)?> LoadStartState(string accountId, long serverSequence)
     {
-        AccountSnapshot? lastSnapshot = await _accountSnapRepo.GetByLastByAccountIdAsync(accountId);
+        AccountSnapshot? lastSnapshot = await _accountSnapshotRepository.GetByLastByAccountIdAsync(accountId);
         if (lastSnapshot is null || serverSequence <= 0)
         {
             return null;
@@ -122,8 +123,6 @@ public class EventValidatorService : IEventValidatorService
         }
 
         // check constraints
-
-        //structural validation
         if (test_balance < 0)
         {
             return new ApplyEventValidationResult
@@ -187,7 +186,7 @@ public class EventValidatorService : IEventValidatorService
             await _accountRepository.SaveChangesAsync();
         }
 
-        // Account frozen check is not yet backed by a dedicated frozen flag in the current model.
+        // TODO: Account frozen check is not yet backed by a dedicated frozen flag in the current model.
         // Once a frozen state exists on Account / AccountState, add that check here.
 
         var nodeState = await _nodeStateRepository.GetByIdAsync(nodeId);

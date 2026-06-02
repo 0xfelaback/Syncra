@@ -2,6 +2,7 @@ using MassTransit;
 using System.Text.Json;
 using Syncra.Application.Interfaces;
 using Syncra.Domain.Entities;
+using Syncra.Worker.Services;
 
 namespace Syncra.Worker;
 
@@ -34,10 +35,8 @@ public class Worker : IConsumer<Event>, IWorker
         }
         if (idempotency)
         {
-            ISendEndpoint endpoint = await context.GetSendEndpoint(new Uri("queue:transactions-idem"));
-            await endpoint.Send(message);
-            _logger.LogInformation($"An idempotency action was performed for eventId: {message.event_id}");
-            await Task.CompletedTask; // send the event to idempotency queue
+            _logger.LogInformation("Duplicate event {EventId} detected — acknowledging and skipping processing", message.event_id);
+            // nothing else; cached idempotency response will be used by the caller.
             return;
         }
 
@@ -48,6 +47,8 @@ public class Worker : IConsumer<Event>, IWorker
             var conflictRepo = scope.ServiceProvider.GetRequiredService<IConflictRepository>();
             var idempotencyRepo = scope.ServiceProvider.GetRequiredService<IIdempotencyKeysRepository>();
             var eventValidatorService = scope.ServiceProvider.GetRequiredService<IEventValidatorService>();
+            var resolutionService = scope.ServiceProvider.GetRequiredService<ResolutionService>();
+            var accountRepo = scope.ServiceProvider.GetRequiredService<IAccountRepository>();
             ApplyEventValidationResult accountCheck = await eventValidatorService.AccountChecks(message, message.node_id);
             if (!accountCheck.isValid)
             {
@@ -61,13 +62,6 @@ public class Worker : IConsumer<Event>, IWorker
                 await idempotencyRepo.SaveChangesAsync();
                 await Task.CompletedTask;
                 return;
-            }
-            Event? even = await eventRepo.GetByIdAsync(message.event_id);
-            if (even is null)
-            {
-                string errorMsg2 = $"An Event that is not recorded in database happened to be transmitted: {message.event_id}";
-                _logger.LogError(errorMsg2);
-                throw new NullReferenceException(errorMsg2);
             }
             long? lastServerSequence = await eventRepo.GetLastServerSequence();
             long serverSequence = lastServerSequence!.Value + 1; // lastServerSequence.GetValueOrDefault(0) + 1;
@@ -89,74 +83,33 @@ public class Worker : IConsumer<Event>, IWorker
             var events = await eventValidatorService.FetchEventstoReplay(replayFromSequence, serverSequence, accountId) ?? new List<Event>();
             int eventReplayed = events.Count;
             decimal currentBalance = eventValidatorService.ReplayEachEventinOrder(pre_new_event_balance, events);
-            ApplyEventValidationResult validation = eventValidatorService.TestApplyNewEvent(even, currentBalance, replayFromSequence, eventReplayed);
+            ApplyEventValidationResult validation = eventValidatorService.TestApplyNewEvent(message, currentBalance, replayFromSequence, eventReplayed);
             if (!validation.isValid)
             {
-                // compensate event
-                long? lastServerSequenceforCompensate = await eventRepo.GetLastServerSequence();
-                even.Status = Event.EventStatus.Compensated;
-
-                long compensationSequence = lastServerSequenceforCompensate!.Value + 1;
-                Event compensatingEvent = new Event
-                {
-                    event_id = $"comp_{Guid.NewGuid()}",
-                    parent_event_id = null,
-                    aggregateId = accountId,
-                    compensates_event_id = even.event_id,
-                    node_id = even.node_id,
-                    node_sequence = even.node_sequence,
-                    server_sequence = compensationSequence,
-                    node_timestamp = even.node_timestamp,
-                    server_timestamp = DateTime.UtcNow,
-                    Type = Event.EventType.CompensatingTransaction,
-                    payload = new Event.EventPayloadData
-                    {
-                        amount = even.payload.amount,
-                        reason = $"Compensation for failed event: {validation.reason}",
-                        from_account_id = even.payload.from_account_id,
-                        to_account_id = even.payload.to_account_id
-                    },
-                    Status = Event.EventStatus.Compensated,
-                    created_at = DateTime.UtcNow
-                };
-
-                Conflict conflict = new Conflict
-                {
-                    account_id = accountId,
-                    original_event_id = even.event_id,
-                    compensation_event_id = compensatingEvent.event_id,
-                    Type = validation.reason.Contains("InsufficientFunds") ? Conflict.ConflictType.InsufficientFunds : Conflict.ConflictType.InvalidOperation,
-                    atempted_balance = validation.postEventBalance,
-                    actual_balance = validation.preEventBalance,
-                    resolution = Conflict.Resolution.compensate,
-                    detected_at = DateTime.UtcNow
-                };
-
-                await eventRepo.AddAsync(compensatingEvent);
-                await eventRepo.UpdateAsync(even);
-                await conflictRepo.AddAsync(conflict);
-                await idempotencyRepo.AddAsync(new IdempotencyKey
-                {
-                    event_id = message.event_id,
-                    response_status = 409,
-                    response_body = JsonDocument.Parse("{\"status\":\"conflict\",\"reason\":\"event_validation_failed\"}")
-                });
-
-                await eventRepo.SaveChangesAsync();
-                await conflictRepo.SaveChangesAsync();
-                await idempotencyRepo.SaveChangesAsync();
-
-                _logger.LogWarning("Conflict detected and compensated for event {EventId}. Reason: {Reason}", even.event_id, validation.reason);
+                await resolutionService.ProcessInvalidTransaction(message, accountId, validation, message.event_id);
                 await Task.CompletedTask;
                 return;
             }
 
             // accept transaction
 
-            even.Status = Event.EventStatus.Accepted;
-            await eventRepo.UpdateAsync(even);
+            message.server_sequence = serverSequence;
+            message.Status = Event.EventStatus.Accepted;
+            await eventRepo.UpdateAsync(message);
 
-            if (serverSequence % 100 == 0)
+            // update account projection after accepting the event
+            var accountToUpdate = await accountRepo.GetByIdAsync(accountId);
+            if (accountToUpdate != null && accountToUpdate.account_state != null)
+            {
+                accountToUpdate.account_state.balance = validation.postEventBalance;
+                accountToUpdate.account_state.version = accountToUpdate.account_state.version + 1;
+                accountToUpdate.account_state.last_event_id = message.event_id;
+                accountToUpdate.account_state.last_server_sequence = message.server_sequence;
+                accountToUpdate.account_state.updated_at = DateTime.UtcNow;
+                await accountRepo.UpdateAsync(accountToUpdate);
+            }
+
+            if (message.server_sequence % 100 == 0)
             {
                 AccountSnapshot snapshot = new AccountSnapshot
                 {
@@ -175,7 +128,6 @@ public class Worker : IConsumer<Event>, IWorker
                 response_body = JsonDocument.Parse("{\"status\":\"accepted\"}")
             });
 
-            await eventRepo.SaveChangesAsync();
             await idempotencyRepo.SaveChangesAsync();
 
             _logger.LogInformation("Accepted event {EventId} with server_sequence {ServerSequence}", message.event_id, serverSequence);
@@ -190,7 +142,4 @@ public class Worker : IConsumer<Event>, IWorker
     }
 }
 
-public interface IWorker
-{
-    Task Consume(ConsumeContext<Event> context);
-}
+
