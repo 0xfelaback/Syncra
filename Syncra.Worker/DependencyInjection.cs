@@ -1,4 +1,5 @@
 using Syncra.Application.Interfaces;
+using Syncra.Worker.Services;
 
 namespace Syncra.Worker;
 
@@ -8,6 +9,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<IWorker, Worker>();
         services.AddScoped<IEventValidatorService, EventValidatorService>();
+        services.AddScoped<IResolutionService, ResolutionService>();
         return services;
     }
 }
