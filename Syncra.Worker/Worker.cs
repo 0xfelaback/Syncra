@@ -59,15 +59,16 @@ public class Worker : IConsumer<Event>, IWorker
                     response_status = 400,
                     response_body = JsonDocument.Parse("{\"status\":\"rejected\",\"reason\":\"account_check_failed\"}") // TODO: not completely implemented yet.
                 });
-                await idempotencyRepo.SaveChangesAsync();
                 await Task.CompletedTask;
                 return;
             }
-            long? lastServerSequence = await eventRepo.GetLastServerSequence();
-            long serverSequence = lastServerSequence!.Value + 1; // lastServerSequence.GetValueOrDefault(0) + 1;
-            (decimal snapBalance, long snapSequence)? result = await eventValidatorService.LoadStartState(accountId, serverSequence);
+
+            (decimal snapBalance, long snapSequence)? result = await eventValidatorService.LoadStartState(accountId, long.MaxValue);
+            //_ = result?.snapBalance ?? 0m;
+            long replayFromSequence = result?.snapSequence ?? 0;
+
+            var events = await eventValidatorService.FetchEventstoReplay(replayFromSequence, long.MaxValue, accountId) ?? new List<Event>();
             decimal pre_new_event_balance;
-            long replayFromSequence;
             if (result is null)
             {
                 _logger.LogInformation("No snapshot found for account {AccountId}. Starting replay from zero.", accountId);
@@ -80,18 +81,19 @@ public class Worker : IConsumer<Event>, IWorker
                 replayFromSequence = result.Value.snapSequence;
             }
 
-            var events = await eventValidatorService.FetchEventstoReplay(replayFromSequence, serverSequence, accountId) ?? new List<Event>();
             int eventReplayed = events.Count;
             decimal currentBalance = eventValidatorService.ReplayEachEventinOrder(pre_new_event_balance, events);
             ApplyEventValidationResult validation = eventValidatorService.TestApplyNewEvent(message, currentBalance, replayFromSequence, eventReplayed);
             if (!validation.isValid)
             {
                 await resolutionService.ProcessInvalidTransaction(message, accountId, validation, message.event_id);
+                await idempotencyRepo.SaveChangesAsync();
                 await Task.CompletedTask;
                 return;
             }
 
             // accept transaction
+            long serverSequence = await eventRepo.GetNextServerSequenceAsync(context.CancellationToken);
 
             message.server_sequence = serverSequence;
             message.Status = Event.EventStatus.Accepted;
@@ -109,14 +111,14 @@ public class Worker : IConsumer<Event>, IWorker
                 await accountRepo.UpdateAsync(accountToUpdate);
             }
 
-            if (message.server_sequence % 100 == 0)
+            if (accountToUpdate != null && accountToUpdate.account_state != null && accountToUpdate.account_state.Version % 100 == 0)
             {
                 AccountSnapshot snapshot = new AccountSnapshot
                 {
                     account_id = accountId,
                     snapshot_sequence = serverSequence,
                     balance = validation.postEventBalance,
-                    event_count = serverSequence == 0 ? 0 : 100
+                    event_count = accountToUpdate.account_state.version
                 };
                 await accountSnapRepo.AddAsync(snapshot);
             }
@@ -134,11 +136,8 @@ public class Worker : IConsumer<Event>, IWorker
 
         }
 
-
-
-
-
-        throw new NotImplementedException();
+        await Task.CompletedTask;
+        return;
     }
 }
 

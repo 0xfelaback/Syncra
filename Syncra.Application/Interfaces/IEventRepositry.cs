@@ -2,6 +2,7 @@ namespace Syncra.Application.Interfaces;
 
 public interface IEventRepository
 {
+    Task<long> GetNextServerSequenceAsync(CancellationToken cancellationToken = default);
     Task<Event?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
     Task<IEnumerable<Event>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<List<Event>?> GetEventsSinceLastSnap(long lastServerSequence, long newServerSequence, string accountId);

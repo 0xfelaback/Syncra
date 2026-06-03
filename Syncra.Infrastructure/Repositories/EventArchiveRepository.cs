@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Syncra.Application.Interfaces;
-using Syncra.Domain.Entities;
-using Syncra.Infrastructure;
 
 namespace Syncra.Infrastructure.Repositories
 {

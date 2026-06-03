@@ -27,7 +27,7 @@ public static class DependencyInjection
                 config.Message<Event>(x => x.SetEntityName("sync-event-exchange"));
                 config.Publish<Event>(x => x.ExchangeType = "x-consistent-hash");
 
-                config.ReceiveEndpoint("queue:transaction-processing", options =>
+                config.ReceiveEndpoint("transaction-processing", options =>
                 {
                     options.ConfigureConsumeTopology = false;
                     options.ConcurrentMessageLimit = 20;
@@ -49,15 +49,7 @@ public static class DependencyInjection
 
                 });
 
-                config.ReceiveEndpoint("queue:transactions-idem", options =>
-                {
-                    options.ConfigureConsumeTopology = false;
-                    options.Bind("sync-event-exchange", b =>
-                    {
-                        b.ExchangeType = RabbitMQ.Client.ExchangeType.Fanout;
-                    });
-                    options.SetQueueArgument("x-message-ttl", 172800000);
-                });
+
             });
         }
         );

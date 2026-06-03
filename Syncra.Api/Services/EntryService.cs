@@ -36,7 +36,7 @@ public class EntryService : IEntryService
             eventsList.Append(transactionEvent);
         }
         await _eventRepository.AddCollectionOfEvents(eventsList);
-        int saved = await _eventRepository.SaveChangesAsync(cancellationToken);
+        await _eventRepository.SaveChangesAsync(cancellationToken);
         return eventsList;
 
     }

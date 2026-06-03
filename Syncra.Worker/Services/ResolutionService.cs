@@ -82,8 +82,6 @@ public class ResolutionService : IResolutionService
             await _accountRepository.UpdateAsync(account);
         }
 
-        await _accountRepository.SaveChangesAsync();
-
         _logger.LogWarning("Conflict detected for event {EventId}. Created compensation {CompEventId}. Reason: {Reason}", even.event_id, compensatingEvent.event_id, validation.reason);
     }
 }
